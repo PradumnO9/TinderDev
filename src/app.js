@@ -45,6 +45,23 @@ app.get("/feed", async (req, res) => {
   }
 });
 
+app.patch("/user", async (req, res) => {
+  const userId = req.body.userId;
+  const data = req.body;
+
+  try {
+    const user = await UserModel.findByIdAndUpdate(
+      { _id: userId },
+      { data },
+      { runValidators: true }
+    );
+    console.log(user);
+    res.send("User updated successfully");
+  } catch (err) {
+    res.status(400).send("UPDATE FAILED " + err.message);
+  }
+});
+
 connectDB()
   .then(() => {
     console.log("DB Connected");
