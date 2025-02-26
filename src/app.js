@@ -1,21 +1,59 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const UserModel = require("./models/user");
+const { validateSignUpData } = require("./utils/validation");
+const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 const app = express();
 
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  const newUser = req.body;
-
-  const user = new UserModel(newUser);
-
+  const { firstName, lastName, emailId, password } = req.body;
   try {
+    // Validation of data
+    validateSignUpData(firstName, lastName, emailId, password);
+
+    // Encrypt the password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Creating a new instance of the user model
+    const user = new UserModel({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
     await user.save();
     res.send("User created successfully");
   } catch (err) {
-    res.status(400).send("Error saving to user " + err.message);
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    if (!validator.isEmail(emailId)) {
+      throw new Error("EmailId is not valid");
+    }
+
+    const user = await UserModel.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("User does not exist.");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (isPasswordValid) {
+      res.send("Login Susseccfully");
+    } else {
+      throw new Error("EmailId or Password not correct");
+    }
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
   }
 });
 
@@ -61,11 +99,9 @@ app.patch("/user/:userId", async (req, res) => {
     if (data?.skills.length > 10) {
       throw new Error("Skills can't be more then 10");
     }
-    const user = await UserModel.findByIdAndUpdate(
-      { _id: userId },
-      { data },
-      { runValidators: true }
-    );
+    const user = await UserModel.findByIdAndUpdate({ _id: userId }, data, {
+      runValidators: true,
+    });
     console.log(user);
     res.send("User updated successfully");
   } catch (err) {

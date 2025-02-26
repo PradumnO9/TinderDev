@@ -15,3 +15,4 @@
 - lowercase: true -> to make input field data lowercase
 - trim: true -> to avoid wide spaces
 - validate() {} -> for custom validation => inside API do runValidators: true, patch API
+- validator npm package to validate fields -> isEmail, isURL, isStrong...
