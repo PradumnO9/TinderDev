@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -19,10 +20,20 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       unique: true,
       trim: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Invalid email address " + value);
+        }
+      },
     },
     password: {
       type: String,
       required: true,
+      validate(value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error("Enter a strong password " + value);
+        }
+      },
     },
     age: {
       type: Number,
@@ -40,6 +51,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default:
         "https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png",
+        validate(value) {
+          if (!validator.isURL(value)) {
+            throw new Error("Invalid image url " + value);
+          }
+        },
     },
     about: {
       type: String,
