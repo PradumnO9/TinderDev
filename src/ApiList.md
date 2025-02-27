@@ -1,9 +1,9 @@
 # TinderDev APIs
 
 ## authRouter
-- POST /signup
-- POST /login
-- POST /logout
+- POST /auth/signup
+- POST /auth/login
+- POST /auth/logout
 
 ## profileRouter
 - GET /profile/view
