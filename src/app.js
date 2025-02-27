@@ -4,10 +4,14 @@ const UserModel = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middleware/auth")
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   const { firstName, lastName, emailId, password } = req.body;
@@ -42,16 +46,31 @@ app.post("/login", async (req, res) => {
 
     const user = await UserModel.findOne({ emailId: emailId });
     if (!user) {
-      throw new Error("User does not exist.");
+      throw new Error("Invalid credentials");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (isPasswordValid) {
+      const token = jwt.sign({ _id: user._id }, "@SecretKey@");
+
+      res.cookie("token", token);
+
       res.send("Login Susseccfully");
     } else {
-      throw new Error("EmailId or Password not correct");
+      throw new Error("Invalid credentials");
     }
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
+
+app.use("/profile", userAuth, async (req, res) => {
+  try {
+
+    const user = req.user;
+
+    res.send(user);
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
@@ -69,7 +88,7 @@ app.get("/user", async (req, res) => {
       res.send(user);
     }
   } catch (err) {
-    res.status(400).send("Error saving to user " + err.message);
+    res.status(400).send("ERROR : " + err.message);
   }
 });
 
@@ -79,7 +98,7 @@ app.get("/feed", async (req, res) => {
   try {
     res.send(allUsers);
   } catch (err) {
-    res.status(400).send("Error saving to user " + err.message);
+    res.status(400).send("ERROR : " + err.message);
   }
 });
 
@@ -105,7 +124,7 @@ app.patch("/user/:userId", async (req, res) => {
     console.log(user);
     res.send("User updated successfully");
   } catch (err) {
-    res.status(400).send("UPDATE FAILED " + err.message);
+    res.status(400).send("ERROR : " + err.message);
   }
 });
 
