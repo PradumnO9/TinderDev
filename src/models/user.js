@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -51,11 +53,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default:
         "https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png",
-        validate(value) {
-          if (!validator.isURL(value)) {
-            throw new Error("Invalid image url " + value);
-          }
-        },
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Invalid image url " + value);
+        }
+      },
     },
     about: {
       type: String,
@@ -66,6 +68,30 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Schema methods to genarate JWT and validate password
+
+userSchema.methods.getJWT = function () {
+  const user = this;
+
+  const token = jwt.sign({ _id: user._id }, "@SecretKey@", {
+    expiresIn: "1d",
+  });
+
+  return token;
+};
+
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+  const user = this;
+  const passwordHash = user.password;
+
+  const isPasswordValid = await bcrypt.compare(
+    passwordInputByUser,
+    passwordHash
+  );
+
+  return isPasswordValid;
+};
 
 const UserModel = mongoose.model("User", userSchema);
 
