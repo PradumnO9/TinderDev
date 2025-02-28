@@ -8,8 +8,7 @@ const router = express.Router();
 router.post("/send/:status/:touserId", userAuth, async (req, res) => {
   try {
     const fromUserId = req.user._id;
-    const toUserId = req.params.touserId;
-    const status = req.params.status;
+    const { status, toUserId } = req.params;
 
     // Validating the status
     const ALLOWED_STATUS = ["ignored", "interested"];
@@ -51,6 +50,37 @@ router.post("/send/:status/:touserId", userAuth, async (req, res) => {
     res.json({
       message: `${req.user.firstName} is ${status} ${toUser.firstName}`,
       data,
+    });
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
+
+router.post("/review/:status/:requestId", userAuth, async (req, res) => {
+  try {
+    const { status, requestId } = req.params;
+    const loggedInUser = req.user;
+
+    const ALLOWED_STATUS = ["accepted", "rejected"];
+    if (!ALLOWED_STATUS.includes(status)) {
+      return res.status(400).json({ message: "Status Not Allowed!" });
+    }
+
+    const connectionRequest = await ConnectionRequestModel.findOne({
+      _id: requestId,
+      toUserId: loggedInUser._id,
+      status: "interested",
+    });
+
+    if (!connectionRequest) {
+      return res.status(400).json({ message: "Connection request not found!" });
+    }
+
+    connectionRequest.status = status;
+    await connectionRequest.save();
+
+    res.json({
+      message: `${loggedInUser.firstName} ${status} your connection request.`,
     });
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
