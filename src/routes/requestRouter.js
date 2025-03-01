@@ -1,6 +1,6 @@
 const express = require("express");
 const { userAuth } = require("../middleware/auth");
-const ConnectionRequestModel = require("../models/connectionRequest");
+const ConnectionRequestsModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
 
 const router = express.Router();
@@ -8,7 +8,8 @@ const router = express.Router();
 router.post("/send/:status/:touserId", userAuth, async (req, res) => {
   try {
     const fromUserId = req.user._id;
-    const { status, toUserId } = req.params;
+    const status = req.params.status;
+    const toUserId = req.params.touserId;
 
     // Validating the status
     const ALLOWED_STATUS = ["ignored", "interested"];
@@ -27,7 +28,7 @@ router.post("/send/:status/:touserId", userAuth, async (req, res) => {
     }
 
     // If there is an existing ConnectionRequest
-    const existingConnectionRequest = await ConnectionRequestModel.findOne({
+    const existingConnectionRequest = await ConnectionRequestsModel.findOne({
       $or: [
         { fromUserId, toUserId },
         { fromUserId: toUserId, toUserId: fromUserId },
@@ -39,7 +40,7 @@ router.post("/send/:status/:touserId", userAuth, async (req, res) => {
         .json({ message: "Connection request is already exists!" });
     }
 
-    const connectionRequest = new ConnectionRequestModel({
+    const connectionRequest = new ConnectionRequestsModel({
       fromUserId,
       toUserId,
       status,
@@ -66,7 +67,7 @@ router.post("/review/:status/:requestId", userAuth, async (req, res) => {
       return res.status(400).json({ message: "Status Not Allowed!" });
     }
 
-    const connectionRequest = await ConnectionRequestModel.findOne({
+    const connectionRequest = await ConnectionRequestsModel.findOne({
       _id: requestId,
       toUserId: loggedInUser._id,
       status: "interested",

@@ -4,6 +4,7 @@ const connectionRequestSchema = new mongoose.Schema(
   {
     fromUserId: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     toUserId: {
@@ -35,9 +36,9 @@ connectionRequestSchema.pre("save", function (next) {
     next();
 })
 
-const ConnectionRequestModel = new mongoose.model(
+const ConnectionRequestsModel = new mongoose.model(
   "ConnectionRequests",
   connectionRequestSchema
 );
 
-module.exports = ConnectionRequestModel;
+module.exports = ConnectionRequestsModel;
