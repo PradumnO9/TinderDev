@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.get("/view", userAuth, profileController.view);
 
-router.patch("/edit", userAuth, profileController.edit);
+router.put("/edit", userAuth, profileController.edit);
 
 module.exports = router;

@@ -17,7 +17,7 @@ exports.edit = async (req, res) => {
     if (!validateEditProfileData(req)) {
       throw new Error("Invalid Edit Request");
     }
-    if (data?.skills.length > 10) {
+    if (data?.skills?.length > 10) {
       throw new Error("Skills can't be more then 10");
     }
 

@@ -21,7 +21,7 @@ exports.signUp = async (req, res) => {
       password: passwordHash,
     });
     await user.save();
-    res.send("User created successfully");
+    res.json({ message: `${firstName} your accout created successfully.` });
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
@@ -48,7 +48,9 @@ exports.login = async (req, res) => {
         expires: new Date(Date.now() + 8 * 3600000),
       });
 
-      res.json({ data: user });
+      const { password, ...data } = user["_doc"];
+
+      res.json({ message: "Login Successfull!", data: data });
     } else {
       throw new Error("Invalid credentials");
     }
