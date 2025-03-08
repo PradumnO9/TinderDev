@@ -1,5 +1,6 @@
 const ConnectionRequestsModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
+const sendEmail = require("../utils/sendEmail");
 
 exports.sendRequest = async (req, res) => {
   try {
@@ -43,6 +44,13 @@ exports.sendRequest = async (req, res) => {
     });
 
     const data = await connectionRequest.save();
+
+    if (status === "interested") {
+      await sendEmail.run(
+        `A new connection request from ${req.user.firstName} ${req.user.lastName}`,
+        `${req.user.firstName} ${req.user.lastName} is ${status} in ${toUser.firstName} ${toUser.lastName}`
+      );
+    }
 
     res.json({
       message: `${req.user.firstName} is ${status} ${toUser.firstName}`,
