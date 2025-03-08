@@ -3,6 +3,7 @@ const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
+require("./utils/cronJob");
 
 const authRouter = require("./routes/authRouter");
 const profileRouter = require("./routes/profileRouter");
