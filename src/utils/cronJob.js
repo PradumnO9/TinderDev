@@ -4,9 +4,10 @@ const ConnectionRequestsModel = require("../models/connectionRequest");
 const sendEmail = require("./sendEmail");
 
 // second minute hour dayOfMonth month dayOfWeek => meaning of * * * * * *
-cron.schedule("0 8 * * *", async () => {
-  // Send emails to all people who got connection requests the previous day
 
+// Send emails to all people who got connection requests the previous day
+// This job will run 8 AM in the morning everday
+cron.schedule("0 8 * * *", async () => {
   try {
     const yesterday = subDays(new Date(), 1);
     const yesterdayStart = startOfDay(yesterday);
