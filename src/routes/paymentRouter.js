@@ -8,4 +8,6 @@ router.post("/create-order", userAuth, paymentController.createOrder);
 
 router.post("/webhook", paymentController.verifyWebhook);
 
+router.get("/verify-premium", userAuth, paymentController.verifyPremiumUser);
+
 module.exports = router;

@@ -43,7 +43,7 @@ exports.createOrder = async (req, res) => {
 
 exports.verifyWebhook = async (req, res) => {
   try {
-    const webhookSignature = req.get["X-Razorpay-Signature"];
+    const webhookSignature = req.get("X-Razorpay-Signature");
 
     const isWebhookValid = validateWebhookSignature(
       JSON.stringify(req.body),
@@ -76,6 +76,19 @@ exports.verifyWebhook = async (req, res) => {
     //  if (req.body.event == "payment.failed") {}
 
     return res.status(200).json({ message: "Webhook received successfully" });
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
+  }
+};
+
+exports.verifyPremiumUser = async (req, res) => {
+  try {
+    const user = req.user;
+    if (user.isPremium) {
+      return res.json({ isPremium: true });
+    }
+
+    return res.json({ isPremium: false });
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
