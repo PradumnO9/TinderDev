@@ -83,12 +83,11 @@ exports.verifyWebhook = async (req, res) => {
 
 exports.verifyPremiumUser = async (req, res) => {
   try {
-    const user = req.user;
+    const user = req.user.toJSON();
     if (user.isPremium) {
-      return res.json({ isPremium: true });
+      return res.json({ ...user });
     }
-
-    return res.json({ isPremium: false });
+    return res.json({ ...user });
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
