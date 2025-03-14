@@ -12,6 +12,7 @@ const profileRouter = require("./routes/profileRouter");
 const requestRouter = require("./routes/requestRouter");
 const userRouter = require("./routes/userRouter");
 const paymentRouter = require("./routes/paymentRouter");
+const chatRouter = require("./routes/chatRouter");
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/profile", profileRouter);
 app.use("/request", requestRouter);
 app.use("/user", userRouter);
 app.use("/payment", paymentRouter);
+app.use("/chat", chatRouter);
 
 const server = http.createServer(app);
 
