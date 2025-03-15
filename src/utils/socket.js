@@ -2,6 +2,7 @@ const socket = require("socket.io");
 const crypto = require("crypto");
 const ChatModel = require("../models/chat");
 const ConnectionRequestsModel = require("../models/connectionRequest");
+const UserModel = require("../models/user");
 
 const getSecretRoomId = (loggedInUserId, targetUserId) => {
   crypto
@@ -92,6 +93,26 @@ const initilizeSocket = (server) => {
     );
 
     socket.on("disconnect", () => {});
+
+    socket.on("loggedIn", async ({ loggedInUserId }) => {
+      try {
+        const verifyUser = await UserModel.findOne({ _id: loggedInUserId });
+        verifyUser.onlineStatus = true;
+        await verifyUser.save();
+      } catch (err) {
+        console.log(err.message);
+      }
+    });
+
+    socket.on("loggedOut", async ({ loggedInUserId }) => {
+      try {
+        const verifyUser = await UserModel.findOne({ _id: loggedInUserId });
+        verifyUser.onlineStatus = false;
+        await verifyUser.save();
+      } catch (err) {
+        console.log(err.message);
+      }
+    });
   });
 };
 

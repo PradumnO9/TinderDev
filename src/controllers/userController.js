@@ -1,7 +1,8 @@
 const ConnectionRequestsModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
 
-const USER_SAFE_DATA = "firstName lastName imageUrl age about gender skills";
+const USER_SAFE_DATA =
+  "firstName lastName imageUrl age about gender skills onlineStatus";
 
 exports.requestsReceived = async (req, res) => {
   try {
